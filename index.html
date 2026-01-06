@@ -1,0 +1,62 @@
+<div id="loginOverlay" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-md p-10 rounded-[2.5rem] shadow-2xl">
+        <h2 class="text-3xl font-black text-slate-800 mb-2">SmartBuilder AI</h2>
+        <p class="text-slate-500 mb-8 font-medium">ログインして開始してください</p>
+        <div class="space-y-4">
+            <input type="text" id="loginId" placeholder="ユーザーID" class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+            <input type="password" id="loginPw" placeholder="パスワード" class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+            <button onclick="handleLogin()" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-blue-600 transition-all">ログイン</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 認証ヘッダーを付与する共通関数
+    async function authFetch(url, options = {}) {
+        const token = localStorage.getItem('sb_token');
+        if (!options.headers) options.headers = {};
+        options.headers['Authorization'] = `Bearer ${token}`;
+        
+        const res = await fetch(url, options);
+        if (res.status === 401) {
+            document.getElementById('loginOverlay').classList.remove('hidden');
+            throw new Error('Unauthorized');
+        }
+        return res;
+    }
+
+    async function handleLogin() {
+        const id = document.getElementById('loginId').value;
+        const password = document.getElementById('loginPw').value;
+        
+        const res = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, password })
+        });
+        
+        if (res.ok) {
+            const { token } = await res.json();
+            localStorage.setItem('sb_token', token);
+            document.getElementById('loginOverlay').classList.add('hidden');
+            sync();
+        } else {
+            alert("ログインに失敗しました");
+        }
+    }
+
+    // 既存の sync 関数内の fetch を authFetch に差し替える
+    async function sync() {
+        try {
+            const res = await authFetch('/api/status');
+            const { records, users } = await res.json();
+            // ...以下、以前の描画処理と同じ...
+            document.getElementById('loginOverlay').classList.add('hidden');
+        } catch (e) { /* 401ならloginOverlayが表示される */ }
+    }
+
+    // 起動時にトークンがあれば非表示にする
+    if (localStorage.getItem('sb_token')) {
+        document.getElementById('loginOverlay').classList.add('hidden');
+    }
+</script>

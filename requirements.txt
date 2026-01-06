@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+google-generativeai
+python-dotenv
+python-jose[cryptography]
+passlib[bcrypt]
+pandas
+openpyxl
+fpdf2
+line-bot-sdk

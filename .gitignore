@@ -1,0 +1,33 @@
+# --- Python 関連 ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+dist/
+build/
+*.egg-info/
+
+# --- 環境設定・セキュリティ (最重要) ---
+.env
+.flaskenv
+.vscode/
+.idea/
+
+# --- アプリケーションデータ (永続化ファイル) ---
+# これらはGitHubに上げず、サーバー上の各インスタンスで管理します
+records.json
+users.json
+uploads/
+export_report.pdf
+report.pdf
+report.xlsx
+export.pdf
+
+# --- OS 関連 ---
+.DS_Store
+Thumbs.db
+
+# 追加
+ngrok.exe
